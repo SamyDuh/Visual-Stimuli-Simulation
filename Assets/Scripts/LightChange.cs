@@ -13,6 +13,8 @@ public class LightChange : MonoBehaviour
     [SerializeField] private Text text;
     [SerializeField] private InputActionReference input;
 
+    private string currentColor = "Black";
+
     private bool isSimulating = false;
 
     public Color[] wavelengths = new Color[]
@@ -32,14 +34,14 @@ public class LightChange : MonoBehaviour
 
     private void OnEnable()
     {
-        input.action.Enable();
-        input.action.performed += StartSimulation;
+        //input.action.Enable();
+        //input.action.performed += StartSimulation;
     }
 
     private void OnDisable()
     {
-        input.action.Disable();
-        input.action.performed -= StartSimulation;
+        //input.action.Disable();
+        //input.action.performed -= StartSimulation;
     }
 
     private void StartSimulation(InputAction.CallbackContext context)
@@ -59,27 +61,41 @@ public class LightChange : MonoBehaviour
 
         directionalLight = GetComponent<Light>();
         if(directionalLight == null || blackScreen == null || text == null ) { return; }
+
+        text.enabled = false;
+
+        StartCoroutine (ColorSwap());
+
+
+
         
     }
+
+    public string GetCurrentColor() { return currentColor; }
 
     IEnumerator ColorSwap()
     {
         int count = 0;
         print("ColorSwap!");
+        yield return new WaitForSeconds((float)4.5);
+
         while (count < wavelengths.Length)
         {
             blackScreen.enabled = true;
+            currentColor = "Black";
             yield return new WaitForSeconds((float)0.5);
             blackScreen.enabled = false;
 
             directionalLight.color = wavelengths[count % wavelengths.Length];
-            print(directionalLight.color);
+            currentColor = directionalLight.color.ToString();
             count++;
             yield return new WaitForSeconds(5);
         }
-
-        text.enabled = true;
+        currentColor = "Black";
+        //text.enabled = true;
         blackScreen.enabled = true;
         isSimulating = false;
+
+        Application.Quit();
     }
 }
